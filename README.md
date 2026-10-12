@@ -10,9 +10,10 @@ StagefyGlobalVariable (Java, @Extension)
       └─ DslJenkinsContext       # Jenkins DSL 래퍼
       └─ core/
           ├─ StageFactory        # YAML → Stage 객체 변환
-          ├─ StepsStage          # 순차 스텝 실행
+          ├─ Stage / Step        # 추상 베이스 클래스
+          ├─ StepsStage          # 순차 스텝 실행 (steps 키)
           ├─ SequentialStage     # 순차 스테이지 (stages 키)
-          ├─ ParallelStage       # 병렬 스테이지 (parallels 키)
+          ├─ ParallelStage       # 병렬 스테이지 (parallels 키, iterated 지원)
           └─ StepFactory         # YAML → Step 객체 변환
               ├─ ShStep
               ├─ ScriptStep
@@ -21,6 +22,7 @@ StagefyGlobalVariable (Java, @Extension)
               └─ UseStageStep    # 외부 YAML 참조 (use 디렉티브)
       └─ util/
           ├─ EnvResolver         # ${env.VAR} 치환
+          ├─ Template            # 템플릿 정의 모델
           ├─ TemplateResolver    # template + arguments 처리
           ├─ IterationResolver   # iterated 반복 처리
           ├─ ModuleResolver      # use 디렉티브 해석
@@ -40,6 +42,8 @@ mvn clean package -DskipTests
 make build          # mvn clean package -DskipTests
 make test           # mvn test
 make clean          # mvn clean
+make docker-build   # build 후 Docker 이미지 생성
+make docker-run     # Jenkins 컨테이너 실행
 ```
 
 ## 사용법
@@ -67,6 +71,8 @@ build:
     - sh: "make build"
     - sh: "make test"
 ```
+
+지원 스텝: `sh`, `script`, `evaluate`, `setEnvFromFile`, `use` (`use: Stage from file.yaml`, 선택적 `makeStage: false`). `stagefy.run(file, stage)`는 지정한 스테이지를 `stage(...)` 블록으로 감싸 실행한다. 전체 YAML 스키마는 [루트 README](../README.md) 참조.
 
 ## 요구 사항
 
