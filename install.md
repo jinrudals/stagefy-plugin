@@ -1,63 +1,64 @@
-# 설치 가이드
+# Installation Guide
 
-## 사전 요구 사항
+[한국어](install.ko.md)
 
-| 항목 | 버전 | 비고 |
-|------|------|------|
-| Jenkins | 2.440.3+ | LTS 권장 |
-| Java | 21 | Jenkins 실행 환경 |
-| Maven | 3.8+ | 빌드 시에만 필요 |
+## Prerequisites
 
-### 필수 Jenkins 플러그인
+| Item | Version | Notes |
+|------|---------|-------|
+| Jenkins | 2.541.1+ | LTS recommended |
+| Java | 17+ | Runtime for Jenkins |
+| Maven | 3.9+ | Only needed to build from source |
 
-Jenkins에 아래 플러그인이 설치되어 있어야 한다:
+### Required Jenkins plugins
+
+The following plugins must be installed in Jenkins:
 
 - `workflow-aggregator` (Pipeline)
-- `pipeline-utility-steps` (readYaml 등)
+- `pipeline-stage-step`
+- `pipeline-utility-steps` (`readYaml`, etc.)
 - `pipeline-model-definition` (Declarative Pipeline)
 
-## 설치 방법
+## Installing
 
-### 1. hpi 파일 빌드
+### 1. Build the hpi
 
 ```bash
-cd plugin
 mvn clean package -DskipTests
 ls target/stagefy.hpi
 ```
 
-### 2. Jenkins에 설치
+### 2. Install into Jenkins
 
-#### 방법 A: 웹 UI
+#### Option A: Web UI
 
-1. Jenkins 관리 > Plugins > Advanced settings
-2. **Deploy Plugin** 섹션에서 `target/stagefy.hpi` 업로드
-3. Jenkins 재시작
+1. Manage Jenkins > Plugins > Advanced settings
+2. In the **Deploy Plugin** section, upload `target/stagefy.hpi`
+3. Restart Jenkins
 
-#### 방법 B: CLI
+#### Option B: CLI
 
 ```bash
 java -jar jenkins-cli.jar -s http://JENKINS_URL/ install-plugin target/stagefy.hpi -restart
 ```
 
-#### 방법 C: 파일 직접 복사
+#### Option C: Copy the file
 
 ```bash
 cp target/stagefy.hpi $JENKINS_HOME/plugins/stagefy.hpi
-# Jenkins 재시작 필요
+# Restart Jenkins afterwards
 ```
 
-### 3. Docker 환경
+### 3. Docker
 
-Dockerfile로 플러그인이 포함된 Jenkins 이미지를 빌드:
+Build a Jenkins image that bundles the plugin:
 
 ```bash
-cd plugin
 docker build -t stagefy-jenkins .
 docker run -p 8080:8080 stagefy-jenkins
 ```
 
-`Dockerfile` 내용:
+`Dockerfile`:
 
 ```dockerfile
 FROM jenkins/jenkins:lts
@@ -67,9 +68,9 @@ COPY target/stagefy.hpi /usr/share/jenkins/ref/plugins/stagefy.hpi
 ENV JAVA_OPTS="-Djenkins.install.runSetupWizard=false"
 ```
 
-## 설치 확인
+## Verifying the installation
 
-Jenkins에 접속하여 Pipeline 잡을 생성하고 아래 스크립트를 실행:
+Create a Pipeline job in Jenkins and run this script:
 
 ```groovy
 pipeline {
@@ -87,4 +88,4 @@ pipeline {
 }
 ```
 
-콘솔 출력에 `ok`가 표시되면 설치 완료.
+If the console output shows `ok`, the plugin is installed correctly.

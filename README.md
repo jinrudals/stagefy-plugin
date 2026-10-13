@@ -111,6 +111,11 @@ mvn hpi:run               # start a development Jenkins with the plugin
 
 The built plugin is `target/stagefy.hpi`.
 
+## Documentation
+
+- [Installation guide](install.md)
+- [Deployment guide](deploy.md)
+
 ## Contributing
 
 Issues and pull requests are welcome. Please run `mvn verify` before submitting a change.

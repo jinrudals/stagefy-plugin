@@ -1,88 +1,87 @@
-# 배포 가이드
+# Deployment Guide
 
-## 빌드
+[한국어](deploy.ko.md)
+
+## Build
 
 ```bash
-cd plugin
 mvn clean package -DskipTests
 ```
 
-빌드 결과물: `target/stagefy.hpi`
+Output: `target/stagefy.hpi`
 
-## 배포 방법
+## Deployment options
 
 ### 1. Jenkinsfile (CI/CD)
 
-`plugin/Jenkinsfile`이 빌드 및 테스트 파이프라인을 정의하고 있다. Jenkins 잡에서 이 파이프라인을 실행하면 자동으로 hpi가 생성된다.
+The `Jenkinsfile` at the repository root builds and tests the plugin with `buildPlugin()`. Releases are handled by `.github/workflows/cd.yaml` (Jenkins continuous delivery).
 
-### 2. hpi 수동 업데이트
+### 2. Manual hpi update
 
-운영 Jenkins에 플러그인을 수동으로 업데이트하는 절차.
+How to update the plugin manually on a production Jenkins.
 
-#### 사전 준비
+#### Preparation
 
-- Jenkins 관리자 권한
-- 빌드된 `stagefy.hpi` 파일
-- Jenkins 재시작 가능한 유지보수 시간 확보
+- Jenkins administrator access
+- A built `stagefy.hpi`
+- A maintenance window in which Jenkins can be restarted
 
-#### 절차
+#### Steps
 
-1. **hpi 빌드**
+1. **Build the hpi**
 
    ```bash
-   cd plugin
    mvn clean package -DskipTests
    ```
 
-2. **기존 플러그인 백업**
+2. **Back up the existing plugin**
 
    ```bash
    cp $JENKINS_HOME/plugins/stagefy.hpi $JENKINS_HOME/plugins/stagefy.hpi.bak
    cp -r $JENKINS_HOME/plugins/stagefy $JENKINS_HOME/plugins/stagefy.bak
    ```
 
-3. **hpi 교체**
+3. **Replace the hpi**
 
    ```bash
    cp target/stagefy.hpi $JENKINS_HOME/plugins/stagefy.hpi
-   # 언팩된 디렉토리가 있으면 삭제 (Jenkins가 재시작 시 다시 언팩)
+   # Remove the unpacked directory if present (Jenkins unpacks it again on restart)
    rm -rf $JENKINS_HOME/plugins/stagefy
    ```
 
-4. **Jenkins 재시작**
+4. **Restart Jenkins**
 
    ```bash
-   # Safe Restart (실행 중인 빌드 완료 후 재시작)
+   # Safe restart (waits for running builds to finish)
    java -jar jenkins-cli.jar -s http://JENKINS_URL/ safe-restart
 
-   # 또는 웹 UI: http://JENKINS_URL/safeRestart
+   # Or via the web UI: http://JENKINS_URL/safeRestart
    ```
 
-5. **버전 확인**
+5. **Verify the version**
 
-   Jenkins 관리 > Plugins > Installed plugins에서 `Stagefy` 버전이 업데이트되었는지 확인.
+   Check that the `Stagefy` version is updated under Manage Jenkins > Plugins > Installed plugins.
 
-#### 롤백
+#### Rollback
 
-문제 발생 시 백업에서 복원:
+If something goes wrong, restore from the backup:
 
 ```bash
 cp $JENKINS_HOME/plugins/stagefy.hpi.bak $JENKINS_HOME/plugins/stagefy.hpi
 rm -rf $JENKINS_HOME/plugins/stagefy
-# Jenkins 재시작
+# Restart Jenkins
 ```
 
-### 3. Docker 배포
+### 3. Docker
 
-Docker 이미지에 hpi를 포함하여 배포:
+Ship the hpi inside a Docker image:
 
 ```bash
-cd plugin
 mvn clean package -DskipTests
 docker build -t stagefy-jenkins .
 ```
 
-기존 컨테이너 교체:
+Replace the running container:
 
 ```bash
 docker stop jenkins
@@ -92,9 +91,9 @@ docker run -d --name jenkins -p 8080:8080 \
   stagefy-jenkins
 ```
 
-## 주의 사항
+## Notes
 
-- hpi 교체 후 반드시 Jenkins를 재시작해야 새 버전이 로드된다.
-- `$JENKINS_HOME/plugins/stagefy/` 디렉토리(언팩된 플러그인)를 삭제하지 않으면 이전 버전이 계속 사용될 수 있다.
-- Safe Restart를 사용하면 실행 중인 빌드가 완료된 후 재시작된다.
-- 운영 환경에서는 유지보수 시간에 업데이트를 진행하는 것을 권장한다.
+- Jenkins must be restarted after replacing the hpi for the new version to load.
+- If you do not delete the unpacked `$JENKINS_HOME/plugins/stagefy/` directory, the old version may keep being used.
+- A safe restart waits for running builds to finish.
+- On production systems, perform the update during a maintenance window.
