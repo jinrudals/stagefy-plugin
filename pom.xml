@@ -7,31 +7,54 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>4.80</version>
+    <version>6.2236.v12dd4c483242</version>
     <relativePath/>
   </parent>
 
   <groupId>io.jenkins.plugins</groupId>
   <artifactId>stagefy</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>${revision}${changelist}</version>
   <packaging>hpi</packaging>
 
   <name>Stagefy</name>
+  <description>YAML-based stage loader and reusable stage templates for Jenkins pipelines.</description>
+  <url>https://github.com/${gitHubRepo}</url>
+
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>https://opensource.org/license/mit/</url>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <id>jinrudals</id>
+      <name>Gyeongmin Jin</name>
+    </developer>
+  </developers>
+
+  <scm child.scm.connection.inherit.append.path="false" child.scm.developerConnection.inherit.append.path="false" child.scm.url.inherit.append.path="false">
+    <connection>scm:git:https://github.com/${gitHubRepo}.git</connection>
+    <developerConnection>scm:git:git@github.com:${gitHubRepo}.git</developerConnection>
+    <tag>${scmTag}</tag>
+    <url>https://github.com/${gitHubRepo}</url>
+  </scm>
 
   <properties>
-    <jenkins.version>2.440.3</jenkins.version>
-    <java.level>21</java.level>
-    <maven.compiler.source>21</maven.compiler.source>
-    <maven.compiler.target>21</maven.compiler.target>
-    <enforcer.skip>true</enforcer.skip>
+    <revision>1.0.0</revision>
+    <changelist>-SNAPSHOT</changelist>
+    <gitHubRepo>jinrudals/stagefy-plugin</gitHubRepo>
+    <jenkins.baseline>2.541</jenkins.baseline>
+    <jenkins.version>${jenkins.baseline}.1</jenkins.version>
   </properties>
 
   <dependencyManagement>
     <dependencies>
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
-        <artifactId>bom-2.440.x</artifactId>
-        <version>3435.v238d66a_043fb_</version>
+        <artifactId>bom-${jenkins.baseline}.x</artifactId>
+        <version>7002.v028a_3607ddc8</version>
         <scope>import</scope>
         <type>pom</type>
       </dependency>
@@ -46,6 +69,10 @@
     <dependency>
       <groupId>org.jenkins-ci.plugins.workflow</groupId>
       <artifactId>workflow-cps</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins</groupId>
+      <artifactId>pipeline-stage-step</artifactId>
     </dependency>
     <!-- snakeyaml is provided transitively by pipeline-utility-steps -->
     <dependency>
@@ -70,9 +97,6 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <build>
-  </build>
 
   <repositories>
     <repository>

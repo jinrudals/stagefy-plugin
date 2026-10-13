@@ -2,6 +2,10 @@
 
 YAML 기반 파이프라인 스테이지 로더를 Jenkins 플러그인(hpi)으로 패키징한 것. `stagefy` 글로벌 변수를 제공하여 Jenkinsfile에서 바로 사용할 수 있다.
 
+## pipeline-as-yaml과의 관계
+
+[pipeline-as-yaml](https://plugins.jenkins.io/pipeline-as-yaml/)은 파이프라인 전체를 YAML로 정의한다. Stagefy는 이를 대체하지 않고 보완하며, **stage 단위**로 YAML을 재사용(`use`, `template`, `iterated` 디렉티브)하는 것이 차별점이다.
+
 ## 아키텍처
 
 ```
@@ -78,8 +82,8 @@ build:
 
 | 항목 | 버전 |
 |------|------|
-| Jenkins | 2.440.3+ |
-| Java | 21 |
+| Jenkins | 2.541.1+ |
+| Java | 17+ |
 | Maven | 3.8+ |
 | 필수 플러그인 | workflow-aggregator, pipeline-utility-steps |
 
