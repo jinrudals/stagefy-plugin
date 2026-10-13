@@ -1,56 +1,16 @@
 # Stagefy Jenkins Plugin
 
-YAML 기반 파이프라인 스테이지 로더를 Jenkins 플러그인(hpi)으로 패키징한 것. `stagefy` 글로벌 변수를 제공하여 Jenkinsfile에서 바로 사용할 수 있다.
+[한국어](README.ko.md)
 
-## pipeline-as-yaml과의 관계
+Stagefy lets you define pipeline **stages** in YAML and reuse them across pipelines. It adds a global `stagefy` variable that you call from a Jenkinsfile, so stage definitions live in plain YAML files and are shared through `use`, `template` and `iterated` directives.
 
-[pipeline-as-yaml](https://plugins.jenkins.io/pipeline-as-yaml/)은 파이프라인 전체를 YAML로 정의한다. Stagefy는 이를 대체하지 않고 보완하며, **stage 단위**로 YAML을 재사용(`use`, `template`, `iterated` 디렉티브)하는 것이 차별점이다.
+Because the stage logic ships inside the plugin, Jenkinsfiles only call `stagefy.run(...)`; no custom shared-library code needs Script Security approval.
 
-## 아키텍처
+## Relationship to pipeline-as-yaml
 
-```
-StagefyGlobalVariable (Java, @Extension)
-  └─ StagefyDsl.groovy          # stagefy.run(file, stage) 진입점
-      └─ DslJenkinsContext       # Jenkins DSL 래퍼
-      └─ core/
-          ├─ StageFactory        # YAML → Stage 객체 변환
-          ├─ Stage / Step        # 추상 베이스 클래스
-          ├─ StepsStage          # 순차 스텝 실행 (steps 키)
-          ├─ SequentialStage     # 순차 스테이지 (stages 키)
-          ├─ ParallelStage       # 병렬 스테이지 (parallels 키, iterated 지원)
-          └─ StepFactory         # YAML → Step 객체 변환
-              ├─ ShStep
-              ├─ ScriptStep
-              ├─ EvaluateStep
-              ├─ SetEnvFromFileStep
-              └─ UseStageStep    # 외부 YAML 참조 (use 디렉티브)
-      └─ util/
-          ├─ EnvResolver         # ${env.VAR} 치환
-          ├─ Template            # 템플릿 정의 모델
-          ├─ TemplateResolver    # template + arguments 처리
-          ├─ IterationResolver   # iterated 반복 처리
-          ├─ ModuleResolver      # use 디렉티브 해석
-          └─ StageNameBuilder    # 스테이지 이름 생성
-```
+[pipeline-as-yaml](https://plugins.jenkins.io/pipeline-as-yaml/) defines a whole pipeline in YAML. Stagefy does not replace it, it complements it: Stagefy focuses on reusing YAML at the **stage level** (`use`, `template`, `iterated`).
 
-## 빌드
-
-```bash
-mvn clean package -DskipTests
-# target/stagefy.hpi 생성
-```
-
-또는 Makefile 사용:
-
-```bash
-make build          # mvn clean package -DskipTests
-make test           # mvn test
-make clean          # mvn clean
-make docker-build   # build 후 Docker 이미지 생성
-make docker-run     # Jenkins 컨테이너 실행
-```
-
-## 사용법
+## Usage
 
 ```groovy
 // Jenkinsfile
@@ -76,27 +36,85 @@ build:
     - sh: "make test"
 ```
 
-지원 스텝: `sh`, `script`, `evaluate`, `setEnvFromFile`, `use` (`use: Stage from file.yaml`, 선택적 `makeStage: false`). `stagefy.run(file, stage)`는 지정한 스테이지를 `stage(...)` 블록으로 감싸 실행한다. 전체 YAML 스키마는 [루트 README](../README.md) 참조.
+`stagefy.run(file, stage)` reads the YAML file from the workspace and runs the named stage inside a `stage(...)` block.
 
-## 요구 사항
+## YAML reference
 
-| 항목 | 버전 |
-|------|------|
-| Jenkins | 2.541.1+ |
-| Java | 17+ |
-| Maven | 3.8+ |
-| 필수 플러그인 | workflow-aggregator, pipeline-utility-steps |
+A stage is a top-level key in the YAML file. Its kind is decided by one of these keys:
 
-## Docker 테스트
+| Key | Meaning |
+|-----|---------|
+| `steps` | Run a list of steps in order |
+| `stages` | Run other stages sequentially |
+| `parallels` | Run other stages in parallel |
+| `template` | Declares a reusable template (cannot be run directly) |
 
-플러그인이 번들된 Jenkins 이미지를 빌드하여 로컬 테스트:
+Optional keys on a `steps` stage: `when` (Groovy expression, the stage is skipped when false), `env` (map of environment variables), `node` (label to run on) and `modules` (environment modules to load before each `sh` step).
 
-```bash
-make docker-build   # Docker 이미지 빌드
-make docker-run     # localhost:8080 에서 Jenkins 실행
+### Steps
+
+| Step | Description |
+|------|-------------|
+| `sh: "cmd"` | Run a shell command. `${env.VAR}` is substituted from the build environment. |
+| `script: path` | Load a Groovy file and call its `main()` |
+| `evaluate: expr` | Evaluate a Groovy expression |
+| `setEnvFromFile: file` | Read the `env:` map of a YAML file into the build environment |
+| `use: Stage from file.yml` | Run a stage defined in another file; add `makeStage: false` to skip the wrapping `stage(...)` |
+| `template: name` | Expand a template, passing arguments as sibling keys |
+| `iterated:` | Expand a template once per item (see below) |
+
+### Stage composition
+
+```yaml
+all:
+  stages:
+    - build
+    - test from common.yml        # stage from another file
+    - template: notify            # template used as a stage
+      channel: ci
 ```
 
-## 관련 문서
+Use `parallels:` instead of `stages:` to run the entries in parallel. Stage names must be unique within one block, and circular references are rejected.
 
-- [설치 가이드](install.md)
-- [배포 가이드](deploy.md)
+### Templates and iteration
+
+```yaml
+deploy:
+  template:
+    arguments: [target]
+  steps:
+    - sh: "./deploy.sh {target}"
+
+release:
+  stages:
+    - iterated:
+        template: deploy
+        over: [dev, staging]      # or: env.TARGETS  (comma-separated)
+```
+
+Arguments are referenced as `{name}` inside template steps. `over` may be a list of scalars, a list of maps (each key becomes an argument; an optional `_name` key names the generated stage) or `env.VAR_NAME` holding a comma-separated list. Each item produces a stage named `<template>_<item>`. Templates may only contain steps; they cannot contain `template` or `iterated` themselves.
+
+## Requirements
+
+| Item | Version |
+|------|---------|
+| Jenkins | 2.541.1+ |
+| Java | 17+ |
+| Plugins | `workflow-cps`, `workflow-step-api`, `pipeline-stage-step`, `pipeline-utility-steps` |
+
+## Building
+
+```bash
+mvn clean verify          # build, run tests and static analysis
+mvn hpi:run               # start a development Jenkins with the plugin
+```
+
+The built plugin is `target/stagefy.hpi`.
+
+## Contributing
+
+Issues and pull requests are welcome. Please run `mvn verify` before submitting a change.
+
+## License
+
+Licensed under the [MIT License](LICENSE).
