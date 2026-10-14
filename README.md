@@ -49,7 +49,7 @@ A stage is a top-level key in the YAML file. Its kind is decided by one of these
 | `parallels` | Run other stages in parallel |
 | `template` | Declares a reusable template (cannot be run directly) |
 
-Optional keys on a `steps` stage: `when` (Groovy expression, the stage is skipped when false), `env` (map of environment variables) and `node` (label to run on).
+`when` (Groovy expression, the stage is skipped when false) is accepted on every stage kind. Optional keys on a `steps` stage only: `env` (map of environment variables) and `node` (label to run on).
 
 ### Steps
 
@@ -98,6 +98,29 @@ release:
 
 Arguments are referenced as `{name}` inside template steps. `over` may be a list of scalars, a list of maps (each key becomes an argument; an optional `_name` key names the generated stage) or `env.VAR_NAME` holding a comma-separated list. Each item produces a stage named `<template>_<item>`. Templates may only contain steps; they cannot contain `template` or `iterated` themselves.
 
+## Editor validation
+
+A JSON Schema for the stage YAML is provided at [`schema/stagefy.schema.json`](schema/stagefy.schema.json) (draft-07). It gives completion and flags unknown keys in editors that use the YAML language server.
+
+Reference it with a modeline at the top of a stage file:
+
+```yaml
+# yaml-language-server: $schema=https://raw.githubusercontent.com/jenkinsci/stagefy-plugin/main/schema/stagefy.schema.json
+build:
+  steps:
+    - sh: "make build"
+```
+
+or map it in VS Code `settings.json` (Red Hat YAML extension):
+
+```json
+"yaml.schemas": {
+  "./schema/stagefy.schema.json": ["Jenkins.yml", "stages/*.yml"]
+}
+```
+
+The schema checks structure only; Groovy in `when`, `evaluate` and `script` and cross-file references are not validated.
+
 ## Troubleshooting
 
 | Message | Cause |
@@ -130,6 +153,7 @@ The built plugin is `target/stagefy.hpi`.
 
 - [Installation guide](install.md)
 - [Deployment guide](deploy.md)
+- [Editor validation (JSON Schema)](#editor-validation)
 - [Changelog](CHANGELOG.md)
 
 ## Contributing
