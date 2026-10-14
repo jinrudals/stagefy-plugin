@@ -1,6 +1,8 @@
 package io.jenkins.plugins.stagefy.core
 
+/** Picks the Stage implementation from the YAML key present in a stage definition. */
 class StageFactory {
+    /** Dispatches on stages/parallels/steps; missing, template or keyless stages call error(). */
     static Stage create(String filename, String stagename, Stage parent, def jenkins, Map data) {
         if (data == null) { jenkins.error("Stage '${stagename}' not found in '${filename}'"); return null }
         if (data.containsKey("stages")) return new SequentialStage(filename, stagename, parent, jenkins)

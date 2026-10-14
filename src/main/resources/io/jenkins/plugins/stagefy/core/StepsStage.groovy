@@ -2,6 +2,7 @@ package io.jenkins.plugins.stagefy.core
 
 import io.jenkins.plugins.stagefy.util.*
 
+/** Stage with a YAML {@code steps} list (plus optional {@code env}, {@code node}, {@code when}); expands template/iterated entries. */
 class StepsStage extends Stage {
     StepsStage(String filename, String stagename, Stage parent, def jenkins) {
         super(filename, stagename, parent, jenkins)

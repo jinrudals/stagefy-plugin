@@ -1,6 +1,8 @@
 package io.jenkins.plugins.stagefy.util
 
+/** Finds {@code ${env.NAME}} references in {@code sh} text and substitutes them. */
 class EnvResolver implements Serializable {
+    /** Returns a list of [full: matched text, key: env name] for each {@code ${env.NAME}} occurrence. */
     static List extractEnvKeys(String text) {
         def pattern = /\$\{\s*env\.([a-zA-Z_.]+)\s*\}/
         def keys = []

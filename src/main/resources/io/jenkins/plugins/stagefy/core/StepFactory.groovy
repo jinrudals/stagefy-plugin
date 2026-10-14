@@ -1,6 +1,8 @@
 package io.jenkins.plugins.stagefy.core
 
+/** Picks the Step implementation from the directive key of a step map. */
 class StepFactory {
+    /** Dispatches on sh/script/setEnvFromFile/evaluate/use; unknown directives call error(). */
     static Step create(Map step, def jenkins, Stage stage) {
         if (step.containsKey("sh")) return new ShStep(step, jenkins, stage)
         if (step.containsKey("script")) return new ScriptStep(step, jenkins, stage)

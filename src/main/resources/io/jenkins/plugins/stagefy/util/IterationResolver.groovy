@@ -1,6 +1,8 @@
 package io.jenkins.plugins.stagefy.util
 
+/** Expands the {@code over:} value of an {@code iterated:} entry into items and builds template bindings. */
 class IterationResolver implements Serializable {
+    /** Accepts a YAML list or an {@code env.VAR} string (comma-separated, trimmed; empty/unset gives []); otherwise calls error(). */
     static List expandOver(def over, def jenkins, String stagename) {
         if (over instanceof List) return new ArrayList(over)
         if (over instanceof String && over.startsWith('env.')) {
@@ -17,6 +19,7 @@ class IterationResolver implements Serializable {
         jenkins.error("iterated.over in stage '${stagename}' must be a list or 'env.VAR_NAME' string, got: ${over?.getClass()?.simpleName ?: 'null'}")
     }
 
+    /** Maps one item to argument bindings: a string binds the single declared argument; a map binds its keys (except {@code _name}). */
     static Map buildBindingsFromItem(String templateName, List declaredArgs, def item, def jenkins, String stagename) {
         def bindings = [:]
         if (item instanceof String) {

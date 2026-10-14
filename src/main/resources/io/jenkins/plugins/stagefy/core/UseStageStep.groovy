@@ -1,5 +1,6 @@
 package io.jenkins.plugins.stagefy.core
 
+/** Step for YAML key {@code use} ("Stage from file"); optional {@code makeStage: false} runs it without a new Jenkins stage. */
 class UseStageStep extends Step {
     UseStageStep(Map raw, def jenkins, Stage stage) {
         super(raw, jenkins, stage)
