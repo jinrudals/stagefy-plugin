@@ -1,5 +1,6 @@
 package io.jenkins.plugins.stagefy.util
 
+/** A parsed template stage (YAML key {@code template:} with {@code arguments} and {@code steps}). */
 class Template implements Serializable {
     String name
     String filename
@@ -15,6 +16,7 @@ class Template implements Serializable {
         this.steps = data?.steps
     }
 
+    /** Calls error() unless the template exists, declares arguments, has only plain steps (no nested template/iterated/stages/parallels). */
     def validate(def jenkins) {
         if (data == null) jenkins.error("Template '${name}' not found in '${filename}'")
         if (data.template == null) jenkins.error("Stage '${name}' is not a template - missing 'template:' key in '${filename}'")
@@ -28,6 +30,7 @@ class Template implements Serializable {
         }
     }
 
+    /** Calls error() if any declared argument is missing from {@code bindings}. */
     def validateBindings(Map bindings, def jenkins, String usedInStage) {
         for (arg in arguments) {
             if (!bindings.containsKey(arg)) {

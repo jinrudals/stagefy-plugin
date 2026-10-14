@@ -1,6 +1,8 @@
 package io.jenkins.plugins.stagefy.util
 
+/** Substitutes template arguments ({@code {arg}} placeholders) into step values. */
 class TemplateResolver implements Serializable {
+    /** Replaces {@code {key}} with binding values, repeating up to 5 passes so values may contain placeholders; null in, null out. */
     static String substituteBindings(String text, Map bindings) {
         if (text == null) return null
         def result = text
@@ -13,6 +15,7 @@ class TemplateResolver implements Serializable {
         }
         return result
     }
+    /** Returns copies of the step maps with String values substituted; non-String values are kept as-is. */
     static List resolveStepsWithBindings(List steps, Map bindings) {
         def resolved = []
         for (step in steps) {

@@ -2,6 +2,7 @@ package io.jenkins.plugins.stagefy.core
 
 import io.jenkins.plugins.stagefy.util.EnvResolver
 
+/** Step for YAML key {@code sh}: runs a shell command after resolving {@code ${env.X}} references. */
 class ShStep extends Step {
     ShStep(Map raw, def jenkins, Stage stage) {
         super(raw, jenkins, stage)

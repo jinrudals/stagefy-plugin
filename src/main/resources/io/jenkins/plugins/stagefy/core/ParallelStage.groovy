@@ -2,6 +2,7 @@ package io.jenkins.plugins.stagefy.core
 
 import io.jenkins.plugins.stagefy.util.*
 
+/** Stage with a YAML {@code parallels} list; children run as concurrent Jenkins parallel branches. */
 class ParallelStage extends Stage {
     ParallelStage(String filename, String stagename, Stage parent, def jenkins) {
         super(filename, stagename, parent, jenkins)
