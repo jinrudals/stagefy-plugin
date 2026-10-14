@@ -49,19 +49,21 @@ A stage is a top-level key in the YAML file. Its kind is decided by one of these
 | `parallels` | Run other stages in parallel |
 | `template` | Declares a reusable template (cannot be run directly) |
 
-Optional keys on a `steps` stage: `when` (Groovy expression, the stage is skipped when false), `env` (map of environment variables), `node` (label to run on) and `modules` (environment modules to load before each `sh` step).
+Optional keys on a `steps` stage: `when` (Groovy expression, the stage is skipped when false), `env` (map of environment variables) and `node` (label to run on).
 
 ### Steps
 
 | Step | Description |
 |------|-------------|
-| `sh: "cmd"` | Run a shell command. `${env.VAR}` is substituted from the build environment. |
+| `sh: "cmd"` | Run a shell command. `${env.VAR}` is substituted from the build environment; plain names are passed as shell variable references (`${VAR}`), so values are never interpreted as shell code. |
 | `script: path` | Load a Groovy file and call its `main()` |
 | `evaluate: expr` | Evaluate a Groovy expression |
 | `setEnvFromFile: file` | Read the `env:` map of a YAML file into the build environment |
 | `use: Stage from file.yml` | Run a stage defined in another file; add `makeStage: false` to skip the wrapping `stage(...)` |
 | `template: name` | Expand a template, passing arguments as sibling keys |
 | `iterated:` | Expand a template once per item (see below) |
+
+> **Security:** `script`, `evaluate` and `when` run arbitrary Groovy outside the Script Security sandbox. Only load YAML files and scripts from sources you trust.
 
 ### Stage composition
 

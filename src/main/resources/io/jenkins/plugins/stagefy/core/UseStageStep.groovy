@@ -1,8 +1,8 @@
 package io.jenkins.plugins.stagefy.core
 
 class UseStageStep extends Step {
-    UseStageStep(Map raw, def jenkins, Stage stage, String moduleprefix) {
-        super(raw, jenkins, stage, moduleprefix)
+    UseStageStep(Map raw, def jenkins, Stage stage) {
+        super(raw, jenkins, stage)
     }
     void run() {
         String useValue = (String) raw.get("use")

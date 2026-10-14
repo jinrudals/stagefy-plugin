@@ -62,7 +62,10 @@ class DslJenkinsContext implements Serializable {
     }
 
     def debug(String msg) { LOGGER.log(Level.FINE, msg) }
-    def info(String msg) { LOGGER.log(Level.INFO, msg) }
+    def info(String msg) {
+        LOGGER.log(Level.INFO, msg)
+        script.println(msg)
+    }
     def warn(String msg) { LOGGER.log(Level.WARNING, msg) }
 
     def loadData(String filename, String stagename) {

@@ -155,4 +155,40 @@ class StagefyDslTest {
         j.assertBuildStatus(Result.FAILURE, run);
         assertLog(run, "Circular Loop");
     }
+
+    @Test
+    void unknownStepDirectiveFails() throws Exception {
+        WorkflowRun run = run("build:\n  steps:\n    - bogus: x\n", "build");
+        j.assertBuildStatus(Result.FAILURE, run);
+        assertLog(run, "Unknown step directive 'bogus'");
+    }
+
+    @Test
+    void stageWithoutKindFails() throws Exception {
+        WorkflowRun run = run("build:\n  env:\n    A: b\n", "build");
+        j.assertBuildStatus(Result.FAILURE, run);
+        assertLog(run, "has no 'stages', 'parallels', or 'steps' key");
+    }
+
+    @Test
+    void envReferenceIsSubstituted() throws Exception {
+        WorkflowRun run = run("build:\n  steps:\n    - sh: \"echo val=${env.MYVAR}\"\n", "build", "env.MYVAR = 'hello'\n");
+        j.assertBuildStatusSuccess(run);
+        assertLog(run, "val=hello");
+    }
+
+    @Test
+    void envValueIsNotExecutedAsShell() throws Exception {
+        WorkflowRun run = run("build:\n  steps:\n    - sh: 'echo val=\"${env.MYVAR}\"'\n", "build",
+                "env.MYVAR = 'x\"; echo INJECTED-MARKER; echo \"'\n");
+        j.assertBuildStatusSuccess(run);
+        assertFalse(JenkinsRule.getLog(run).contains("\nINJECTED-MARKER"), "value must not run as shell");
+    }
+
+    @Test
+    void stageEnterIsLoggedToConsole() throws Exception {
+        WorkflowRun run = run("build:\n  steps:\n    - sh: \"true\"\n", "build");
+        j.assertBuildStatusSuccess(run);
+        assertLog(run, "Stage ENTER: build");
+    }
 }

@@ -30,13 +30,13 @@ class ParallelStage extends Stage {
                     def capturedName = result.get("name")
                     def capturedSteps = result.get("steps")
                     seenNames.add(capturedName)
-                    branches[capturedName] = { jenkins.stage(capturedName) { executeResolvedSteps(capturedSteps, "") } }
+                    branches[capturedName] = { jenkins.stage(capturedName) { executeResolvedSteps(capturedSteps) } }
                 } else if (entry.containsKey("iterated")) {
                     for (r in buildIteratedStages(entry, seenNames, "parallels")) {
                         def capturedName = r.get("name")
                         def capturedSteps = r.get("steps")
                         seenNames.add(capturedName)
-                        branches[capturedName] = { jenkins.stage(capturedName) { executeResolvedSteps(capturedSteps, "") } }
+                        branches[capturedName] = { jenkins.stage(capturedName) { executeResolvedSteps(capturedSteps) } }
                     }
                 }
             }

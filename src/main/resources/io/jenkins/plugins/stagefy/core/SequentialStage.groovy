@@ -31,13 +31,13 @@ class SequentialStage extends Stage {
                     def capturedName = result.get("name")
                     def capturedSteps = result.get("steps")
                     seenNames.add(capturedName)
-                    executionPlan.add({ jenkins.stage(capturedName) { executeResolvedSteps(capturedSteps, "") } })
+                    executionPlan.add({ jenkins.stage(capturedName) { executeResolvedSteps(capturedSteps) } })
                 } else if (entry.containsKey("iterated")) {
                     for (r in buildIteratedStages(entry, seenNames, "stages")) {
                         def capturedName = r.get("name")
                         def capturedSteps = r.get("steps")
                         seenNames.add(capturedName)
-                        executionPlan.add({ jenkins.stage(capturedName) { executeResolvedSteps(capturedSteps, "") } })
+                        executionPlan.add({ jenkins.stage(capturedName) { executeResolvedSteps(capturedSteps) } })
                     }
                 }
             }

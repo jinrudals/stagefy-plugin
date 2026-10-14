@@ -3,8 +3,8 @@ package io.jenkins.plugins.stagefy.core
 import io.jenkins.plugins.stagefy.util.EnvResolver
 
 class ShStep extends Step {
-    ShStep(Map raw, def jenkins, Stage stage, String moduleprefix) {
-        super(raw, jenkins, stage, moduleprefix)
+    ShStep(Map raw, def jenkins, Stage stage) {
+        super(raw, jenkins, stage)
     }
 
     void run() {
@@ -15,6 +15,6 @@ class ShStep extends Step {
             envValues.put(entry.get("key"), jenkins.getEnv(entry.get("key")))
         }
         String cmd = EnvResolver.substitute(text, envKeys, envValues)
-        jenkins.sh(moduleprefix + cmd)
+        jenkins.sh(cmd)
     }
 }

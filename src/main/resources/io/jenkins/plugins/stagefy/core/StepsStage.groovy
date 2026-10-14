@@ -8,10 +8,8 @@ class StepsStage extends Stage {
     }
 
     void execute(Map data) {
-        List modules = (List) data.get("modules")
-        String mp = ModuleResolver.buildPrefix(modules)
         List resolvedSteps = resolveSteps(data)
-        def content = { executeResolvedSteps(resolvedSteps, mp) }
+        def content = { executeResolvedSteps(resolvedSteps) }
         content = wrapWithEnv(content, (Map) data.get("env"))
         content = wrapWithNode(content, data.get("node"))
         if (flag) content()
