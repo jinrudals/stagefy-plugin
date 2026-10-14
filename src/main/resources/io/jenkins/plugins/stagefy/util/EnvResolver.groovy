@@ -11,11 +11,16 @@ class EnvResolver implements Serializable {
         return keys
     }
 
+    // Plain identifiers become shell variable references so values are never re-parsed
+    // as shell code (Jenkins exports env.* to sh steps); other keys keep literal substitution.
     static String substitute(String text, List envEntries, Map envValues) {
         def result = text
         for (entry in envEntries) {
             def val = envValues.get(entry.key)
-            if (val != null) result = result.replace(entry.full, val.toString())
+            if (val == null) continue
+            String key = (String) entry.key
+            String replacement = (key ==~ /[a-zA-Z_][a-zA-Z0-9_]*/) ? "\${" + key + "}" : val.toString()
+            result = result.replace(entry.full, replacement)
         }
         return result
     }

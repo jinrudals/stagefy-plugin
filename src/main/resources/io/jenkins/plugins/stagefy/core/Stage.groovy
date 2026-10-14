@@ -44,10 +44,10 @@ abstract class Stage implements Serializable {
         return StageFactory.create(file, name, this, jenkins, childData)
     }
 
-    void executeResolvedSteps(List resolvedSteps, String moduleprefix) {
+    void executeResolvedSteps(List resolvedSteps) {
         for (step in resolvedSteps) {
             jenkins.debug("Step: ${step.keySet()}")
-            StepFactory.create(step, jenkins, this, moduleprefix).run()
+            StepFactory.create(step, jenkins, this).run()
         }
     }
 }

@@ -31,7 +31,6 @@ StagefyGlobalVariable (Java, @Extension)
           ├─ Template            # 템플릿 정의 모델
           ├─ TemplateResolver    # template + arguments 처리
           ├─ IterationResolver   # iterated 반복 처리
-          ├─ ModuleResolver      # modules 키의 환경 모듈 로드 접두어 생성
           └─ StageNameBuilder    # 스테이지 이름 생성
 ```
 
@@ -78,7 +77,7 @@ build:
     - sh: "make test"
 ```
 
-지원 스텝: `sh`, `script`, `evaluate`, `setEnvFromFile`, `use` (`use: Stage from file.yaml`, 선택적 `makeStage: false`). `stagefy.run(file, stage)`는 지정한 스테이지를 `stage(...)` 블록으로 감싸 실행한다. YAML 스키마(`stages`, `parallels`, `template`, `iterated`, `when`, `env`, `node`, `modules`)는 [영문 README](README.md#yaml-reference)를 참조.
+지원 스텝: `sh`, `script`, `evaluate`, `setEnvFromFile`, `use` (`use: Stage from file.yaml`, 선택적 `makeStage: false`). `stagefy.run(file, stage)`는 지정한 스테이지를 `stage(...)` 블록으로 감싸 실행한다. YAML 스키마(`stages`, `parallels`, `template`, `iterated`, `when`, `env`, `node`)는 [영문 README](README.md#yaml-reference)를 참조.
 
 ## 요구 사항
 
