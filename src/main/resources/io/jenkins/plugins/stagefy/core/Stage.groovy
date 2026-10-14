@@ -39,6 +39,13 @@ abstract class Stage implements Serializable {
 
     abstract void execute(Map data)
 
+    // "name" or "name from file"; only whitespace-delimited "from" separates, so names containing "from" are safe
+    protected List parseStageRef(String ref) {
+        def parts = ref.trim().split(/\s+from\s+/, 2)
+        if (parts.length == 2) return [parts[0].trim(), parts[1].trim()]
+        return [ref.trim(), this.filename]
+    }
+
     Stage constructChild(String file, String name) {
         def childData = jenkins.loadData(file, name)
         return StageFactory.create(file, name, this, jenkins, childData)
