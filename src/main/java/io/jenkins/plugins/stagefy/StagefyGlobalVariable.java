@@ -34,9 +34,6 @@ public class StagefyGlobalVariable extends GlobalVariable {
 
     @Extension
     public static class Allowlist extends GroovySourceFileAllowlist {
-        private static final String BASE = "jar:file:";
-        private static final String PLUGIN_PATH = "/stagefy/WEB-INF/lib/stagefy.jar!/io/jenkins/plugins/stagefy/";
-
         @Override
         public boolean isAllowed(String groovyResourceUrl) {
             return groovyResourceUrl.contains("/io/jenkins/plugins/stagefy/")

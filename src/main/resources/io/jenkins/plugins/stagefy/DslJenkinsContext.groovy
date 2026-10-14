@@ -47,6 +47,8 @@ class DslJenkinsContext implements Serializable {
     def error(String msg) {
         LOGGER.log(Level.SEVERE, msg)
         script.error(msg)
+        // callers rely on error() never returning (validators dereference values right after it)
+        throw new hudson.AbortException(msg)
     }
 
     def getEnv(String name) {
