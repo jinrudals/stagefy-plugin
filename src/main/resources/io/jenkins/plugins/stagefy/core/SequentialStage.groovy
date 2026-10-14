@@ -45,14 +45,6 @@ class SequentialStage extends Stage {
         for (execution in executionPlan) { execution() }
     }
 
-    private List parseStageRef(String ref) {
-        if (ref.contains("from")) {
-            def parts = ref.split("from", 2)
-            return [parts[0].trim(), parts[1].trim()]
-        }
-        return [ref, this.filename]
-    }
-
     private void checkDuplicate(String name, List seenNames, String block) {
         if (seenNames.contains(name)) jenkins.error("Duplicate stage name '${name}' in ${block} block of '${this.stagename}'")
     }

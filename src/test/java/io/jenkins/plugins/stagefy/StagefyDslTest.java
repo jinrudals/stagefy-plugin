@@ -191,4 +191,30 @@ class StagefyDslTest {
         j.assertBuildStatusSuccess(run);
         assertLog(run, "Stage ENTER: build");
     }
+
+    @Test
+    void stageNameContainingFromIsNotSplit() throws Exception {
+        String yaml = "deploy_from_s3:\n  steps:\n    - sh: \"echo ran-s3\"\n"
+                + "all:\n  stages:\n    - deploy_from_s3\n";
+        WorkflowRun run = run(yaml, "all");
+        j.assertBuildStatusSuccess(run);
+        assertLog(run, "ran-s3");
+    }
+
+    @Test
+    void parallelStageNameContainingFromIsNotSplit() throws Exception {
+        String yaml = "deploy_from_s3:\n  steps:\n    - sh: \"echo ran-s3\"\n"
+                + "all:\n  parallels:\n    - deploy_from_s3\n";
+        WorkflowRun run = run(yaml, "all");
+        j.assertBuildStatusSuccess(run);
+        assertLog(run, "ran-s3");
+    }
+
+    @Test
+    void stageRefFromAnotherFileStillWorks() throws Exception {
+        String yaml = "all:\n  stages:\n    - build from Jenkins.yml\nbuild:\n  steps:\n    - sh: \"echo ran-build\"\n";
+        WorkflowRun run = run(yaml, "all");
+        j.assertBuildStatusSuccess(run);
+        assertLog(run, "ran-build");
+    }
 }
