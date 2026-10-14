@@ -14,6 +14,9 @@
 - `script`, `evaluate`, `when`이 Script Security 샌드박스 밖에서 Groovy를 실행한다는 점을 문서화했다.
 - 템플릿 인자(`{arg}`)가 Jenkinsfile의 `${...}`처럼 `sh` 스텝에 그대로 삽입된다는 점을 문서화했다.
 
+### Added
+- 스테이지 YAML용 JSON Schema(`schema/stagefy.schema.json`)와 README의 *Editor validation* 섹션을 추가했다.
+
 ### Fixed
 - `from`이 포함된 스테이지 이름(예: `deploy_from_s3`)이 더 이상 `name from file` 참조로 분리되지 않는다.
 - `error()`가 항상 예외를 던지므로, 검증기가 null 데이터로 계속 진행할 수 없다.
