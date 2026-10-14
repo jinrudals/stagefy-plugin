@@ -1,0 +1,185 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/jenkinsci/stagefy-plugin/main/schema/stagefy.schema.json",
+  "title": "Stagefy stage YAML",
+  "description": "Top-level map of stage name to stage definition, as loaded by stagefy.run(file, stage).",
+  "type": "object",
+  "additionalProperties": { "$ref": "#/definitions/anyStage" },
+  "definitions": {
+    "anyStage": {
+      "description": "A runnable stage (steps, stages or parallels) or a template.",
+      "oneOf": [
+        { "$ref": "#/definitions/stepsStage" },
+        { "$ref": "#/definitions/stagesStage" },
+        { "$ref": "#/definitions/parallelsStage" },
+        { "$ref": "#/definitions/templateStage" }
+      ]
+    },
+    "when": {
+      "description": "Groovy expression evaluated outside the Script Security sandbox; the stage is skipped when it is false. Applies to every stage kind.",
+      "type": ["string", "boolean"]
+    },
+    "stepsStage": {
+      "type": "object",
+      "required": ["steps"],
+      "properties": {
+        "steps": { "type": "array", "items": { "$ref": "#/definitions/stageStep" } },
+        "when": { "$ref": "#/definitions/when" },
+        "env": {
+          "description": "Environment variables; values are converted to strings.",
+          "type": "object",
+          "additionalProperties": { "type": ["string", "number", "boolean"] }
+        },
+        "node": { "description": "Node label to run on.", "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "stagesStage": {
+      "type": "object",
+      "required": ["stages"],
+      "properties": {
+        "stages": { "$ref": "#/definitions/stageRefList" },
+        "when": { "$ref": "#/definitions/when" }
+      },
+      "additionalProperties": false
+    },
+    "parallelsStage": {
+      "type": "object",
+      "required": ["parallels"],
+      "properties": {
+        "parallels": { "$ref": "#/definitions/stageRefList" },
+        "when": { "$ref": "#/definitions/when" }
+      },
+      "additionalProperties": false
+    },
+    "templateStage": {
+      "description": "Reusable template; cannot be run directly and may contain only plain steps.",
+      "type": "object",
+      "required": ["template", "steps"],
+      "properties": {
+        "template": {
+          "type": "object",
+          "required": ["arguments"],
+          "properties": {
+            "arguments": {
+              "description": "Argument names, referenced as {name} in step values.",
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": { "type": "string", "minLength": 1 }
+            }
+          },
+          "additionalProperties": false
+        },
+        "steps": { "type": "array", "items": { "$ref": "#/definitions/plainStep" } }
+      },
+      "additionalProperties": false
+    },
+    "stageRefList": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "description": "'name' or 'name from file.yml'.",
+            "type": "string",
+            "minLength": 1
+          },
+          { "$ref": "#/definitions/templateRef" },
+          { "$ref": "#/definitions/iterated" }
+        ]
+      }
+    },
+    "scalar": { "type": ["string", "number", "boolean"] },
+    "templateRef": {
+      "description": "Expand a template; sibling keys supply its arguments.",
+      "type": "object",
+      "required": ["template"],
+      "properties": { "template": { "type": "string", "minLength": 1 } },
+      "additionalProperties": { "$ref": "#/definitions/scalar" }
+    },
+    "iterated": {
+      "description": "Expand a template once per item.",
+      "type": "object",
+      "required": ["iterated"],
+      "properties": {
+        "iterated": {
+          "type": "object",
+          "required": ["template", "over"],
+          "properties": {
+            "template": { "type": "string", "minLength": 1 },
+            "over": {
+              "oneOf": [
+                {
+                  "description": "List of scalars (one-argument templates) or maps (keys are arguments; optional _name names the stage).",
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      { "type": "string" },
+                      {
+                        "type": "object",
+                        "additionalProperties": { "$ref": "#/definitions/scalar" }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "description": "Environment variable holding a comma-separated list.",
+                  "type": "string",
+                  "pattern": "^env\\."
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "plainStep": {
+      "oneOf": [
+        {
+          "type": "object", "required": ["sh"],
+          "properties": { "sh": { "type": "string" } },
+          "additionalProperties": false
+        },
+        {
+          "type": "object", "required": ["script"],
+          "properties": { "script": { "description": "Groovy file whose main() is called.", "type": "string" } },
+          "additionalProperties": false
+        },
+        {
+          "type": "object", "required": ["evaluate"],
+          "properties": { "evaluate": { "description": "Groovy expression.", "type": "string" } },
+          "additionalProperties": false
+        },
+        {
+          "type": "object", "required": ["setEnvFromFile"],
+          "properties": { "setEnvFromFile": { "type": "string" } },
+          "additionalProperties": false
+        },
+        {
+          "type": "object", "required": ["use"],
+          "properties": {
+            "use": {
+              "description": "'StageName from file.yml'.",
+              "type": "string",
+              "pattern": " from "
+            },
+            "makeStage": {
+              "description": "Wrap in a stage(...) block (default true).",
+              "type": ["boolean", "string"]
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "stageStep": {
+      "oneOf": [
+        { "$ref": "#/definitions/plainStep" },
+        { "$ref": "#/definitions/templateRef" },
+        { "$ref": "#/definitions/iterated" }
+      ]
+    }
+  }
+}

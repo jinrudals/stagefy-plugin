@@ -14,6 +14,9 @@ Notable changes to this project. Versions are published through the CD workflow;
 - Documented that `script`, `evaluate` and `when` run Groovy outside the Script Security sandbox.
 - Documented that template arguments (`{arg}`) are inlined into `sh` steps, like `${...}` in a Jenkinsfile.
 
+### Added
+- JSON Schema for the stage YAML at `schema/stagefy.schema.json`, with an *Editor validation* section in the README.
+
 ### Fixed
 - Stage names containing `from` (e.g. `deploy_from_s3`) are no longer split as `name from file` references.
 - `error()` always throws, so validators cannot continue with null data.
