@@ -191,4 +191,33 @@ class StagefyDslTest {
         j.assertBuildStatusSuccess(run);
         assertLog(run, "Stage ENTER: build");
     }
+
+    @Test
+    void unsafeIteratedValueIsRejected() throws Exception {
+        String yaml = "tpl:\n  template:\n    arguments: [target]\n  steps:\n    - sh: \"echo target-{target}\"\n"
+                + "all:\n  stages:\n    - iterated:\n        template: tpl\n        over: env.TARGETS\n";
+        WorkflowRun run = run(yaml, "all", "env.TARGETS = 'ok, x; echo INJECTED-MARKER'\n");
+        j.assertBuildStatus(Result.FAILURE, run);
+        assertLog(run, "argument 'target'");
+        assertLog(run, "unsafe character");
+        assertFalse(JenkinsRule.getLog(run).contains("\nINJECTED-MARKER"));
+    }
+
+    @Test
+    void unsafeTemplateArgumentIsRejected() throws Exception {
+        String yaml = "tpl:\n  template:\n    arguments: [name]\n  steps:\n    - sh: \"echo hi-{name}\"\n"
+                + "build:\n  steps:\n    - template: tpl\n      name: \"a$(id)\"\n";
+        WorkflowRun run = run(yaml, "build");
+        j.assertBuildStatus(Result.FAILURE, run);
+        assertLog(run, "unsafe character");
+    }
+
+    @Test
+    void commonValuesAreAccepted() throws Exception {
+        String yaml = "tpl:\n  template:\n    arguments: [name]\n  steps:\n    - sh: \"echo hi-{name}\"\n"
+                + "build:\n  steps:\n    - template: tpl\n      name: feature/foo-1.2_bar@v1\n";
+        WorkflowRun run = run(yaml, "build");
+        j.assertBuildStatusSuccess(run);
+        assertLog(run, "hi-feature/foo-1.2_bar@v1");
+    }
 }

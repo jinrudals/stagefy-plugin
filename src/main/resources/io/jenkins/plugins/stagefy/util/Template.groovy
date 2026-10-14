@@ -34,6 +34,13 @@ class Template implements Serializable {
                 jenkins.error("Template '${name}' requires argument '${arg}' but it was not supplied (used in stage '${usedInStage}')")
             }
         }
+        // Values are inlined into sh steps, so reject anything the shell could interpret.
+        for (entry in bindings.entrySet()) {
+            def bad = (entry.value.toString() =~ /[^A-Za-z0-9_.\/:@%+=,~ -]/)
+            if (bad.find()) {
+                jenkins.error("Template '${name}' argument '${entry.key}' (used in stage '${usedInStage}') contains unsafe character '${bad.group()}'; allowed: letters, digits and _ . / : @ % + = , ~ - and space")
+            }
+        }
     }
 
     List getArguments() { return arguments }

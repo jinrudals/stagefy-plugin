@@ -94,7 +94,7 @@ release:
         over: [dev, staging]      # or: env.TARGETS  (comma-separated)
 ```
 
-Arguments are referenced as `{name}` inside template steps. `over` may be a list of scalars, a list of maps (each key becomes an argument; an optional `_name` key names the generated stage) or `env.VAR_NAME` holding a comma-separated list. Each item produces a stage named `<template>_<item>`. Templates may only contain steps; they cannot contain `template` or `iterated` themselves.
+Arguments are referenced as `{name}` inside template steps. Because values are inlined into `sh` steps, an argument value may only contain letters, digits, space and `_ . / : @ % + = , ~ -`; any other character fails the build. `over` may be a list of scalars, a list of maps (each key becomes an argument; an optional `_name` key names the generated stage) or `env.VAR_NAME` holding a comma-separated list. Each item produces a stage named `<template>_<item>`. Templates may only contain steps; they cannot contain `template` or `iterated` themselves.
 
 ## Requirements
 
