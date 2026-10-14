@@ -64,6 +64,8 @@ Optional keys on a `steps` stage: `when` (Groovy expression, the stage is skippe
 | `iterated:` | Expand a template once per item (see below) |
 
 > **Security:** `script`, `evaluate` and `when` run arbitrary Groovy outside the Script Security sandbox. Only load YAML files and scripts from sources you trust.
+>
+> Template arguments (`{name}`) are inlined as text into `sh` steps, just like `${...}` interpolation in a Jenkinsfile. When a value comes from outside (branch names, build parameters, `over: env.VAR`), quote it in the step (`sh: "deploy.sh '{name}'"`) and make sure it cannot contain quotes or shell syntax. `${env.VAR}` is different: it is passed as a shell variable and is never interpreted as code.
 
 ### Stage composition
 
@@ -104,7 +106,6 @@ Arguments are referenced as `{name}` inside template steps. `over` may be a list
 | `Stage 'X' has no 'stages', 'parallels', or 'steps' key` | The stage defines none of the three body keys. |
 | `Unknown step directive 'x' in stage 'X'` | A step uses a key other than `sh`, `script`, `setEnvFromFile`, `evaluate`, `use`, `template`, `iterated`. |
 | `Template 'T' requires argument 'a' ...` | A `template` step or `iterated` item does not supply every declared argument. |
-| `... contains unsafe character ...` | A template argument value has characters outside the allowed set (see above). |
 | `Circular Loop Execution ...` | Stages reference each other in a cycle. |
 | `Template stage 'T' cannot be executed directly` | Templates can only be used through `template` or `iterated`. |
 

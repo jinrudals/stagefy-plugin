@@ -6,11 +6,11 @@ Notable changes to this project. Versions are published through the CD workflow;
 
 ### Breaking
 - Removed the `modules` key on `steps` stages (environment-modules loading). Run `module load ...` inside an `sh` step instead.
-- Template argument values may now only contain letters, digits, space and `_ . / : @ % + = , ~ -`. Other characters fail the build instead of being inlined into `sh` steps.
 
 ### Security
 - `${env.VAR}` in `sh` steps is passed as a shell variable reference, so values are never interpreted as shell code.
 - Documented that `script`, `evaluate` and `when` run Groovy outside the Script Security sandbox.
+- Documented that template arguments (`{arg}`) are inlined into `sh` steps, like `${...}` in a Jenkinsfile.
 
 ### Fixed
 - Stage names containing `from` (e.g. `deploy_from_s3`) are no longer split as `name from file` references.
