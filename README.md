@@ -96,6 +96,18 @@ release:
 
 Arguments are referenced as `{name}` inside template steps. `over` may be a list of scalars, a list of maps (each key becomes an argument; an optional `_name` key names the generated stage) or `env.VAR_NAME` holding a comma-separated list. Each item produces a stage named `<template>_<item>`. Templates may only contain steps; they cannot contain `template` or `iterated` themselves.
 
+## Troubleshooting
+
+| Message | Cause |
+|---------|-------|
+| `Stage 'X' not found in 'file'` | The stage name is not a top-level key of the YAML file, or the file is not in the workspace (checkout first). |
+| `Stage 'X' has no 'stages', 'parallels', or 'steps' key` | The stage defines none of the three body keys. |
+| `Unknown step directive 'x' in stage 'X'` | A step uses a key other than `sh`, `script`, `setEnvFromFile`, `evaluate`, `use`, `template`, `iterated`. |
+| `Template 'T' requires argument 'a' ...` | A `template` step or `iterated` item does not supply every declared argument. |
+| `... contains unsafe character ...` | A template argument value has characters outside the allowed set (see above). |
+| `Circular Loop Execution ...` | Stages reference each other in a cycle. |
+| `Template stage 'T' cannot be executed directly` | Templates can only be used through `template` or `iterated`. |
+
 ## Requirements
 
 | Item | Version |
@@ -117,10 +129,11 @@ The built plugin is `target/stagefy.hpi`.
 
 - [Installation guide](install.md)
 - [Deployment guide](deploy.md)
+- [Changelog](CHANGELOG.md)
 
 ## Contributing
 
-Issues and pull requests are welcome. Please run `mvn verify` before submitting a change.
+Issues and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) and record notable changes in [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
