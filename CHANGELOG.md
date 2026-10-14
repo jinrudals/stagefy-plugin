@@ -1,5 +1,7 @@
 # Changelog
 
+[한국어](CHANGELOG.ko.md)
+
 Notable changes to this project. Versions are published through the CD workflow; entries are grouped under *Unreleased* until a release is cut.
 
 ## Unreleased

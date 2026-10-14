@@ -1,5 +1,7 @@
 # Contributing
 
+[한국어](CONTRIBUTING.ko.md)
+
 Issues and pull requests are welcome.
 
 ## Setup
