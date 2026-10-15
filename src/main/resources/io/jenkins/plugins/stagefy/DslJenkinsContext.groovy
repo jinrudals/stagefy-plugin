@@ -8,6 +8,7 @@ import java.util.logging.Logger
 class DslJenkinsContext implements Serializable {
     private static final Logger LOGGER = Logger.getLogger(DslJenkinsContext.class.name)
     private def script
+    private Map yamlCache = new LinkedHashMap()
 
     DslJenkinsContext(CpsScript script) {
         this.script = script
@@ -33,8 +34,12 @@ class DslJenkinsContext implements Serializable {
         script.withEnv(envs, body)
     }
 
+    /** Parses a YAML file once per run; later calls return the cached result (treat it as read-only). */
     def readYaml(String file) {
-        return script.readYaml(file: file)
+        if (!yamlCache.containsKey(file)) {
+            yamlCache.put(file, script.readYaml(file: file))
+        }
+        return yamlCache.get(file)
     }
 
     def load(String path) {
