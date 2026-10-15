@@ -22,6 +22,7 @@ Notable changes to this project. Versions are published through the CD workflow;
 - `error()` always throws, so validators cannot continue with null data.
 
 ### Changed
+- Each YAML file is parsed once per build and cached. Do not modify a YAML file after it has been read; the change is not picked up.
 - Stage ENTER/EXIT messages are written to the build console.
 
 ## Earlier

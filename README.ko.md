@@ -153,6 +153,8 @@ release:
 | `Circular Loop Execution ...` | 스테이지가 서로를 순환 참조한다. |
 | `Template stage 'T' cannot be executed directly` | 템플릿은 `template` 또는 `iterated`를 통해서만 사용할 수 있다. |
 
+각 YAML 파일은 빌드당 한 번만 파싱되어 캐시된다. 빌드 중에 생성한 파일은 처음 사용할 때 읽히지만, 이미 읽은 파일은 수정하지 않는다. 수정 내용이 반영되지 않는다.
+
 ## 요구 사항
 
 | 항목 | 버전 |

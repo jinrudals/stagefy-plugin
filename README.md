@@ -132,6 +132,8 @@ The schema checks structure only; Groovy in `when`, `evaluate` and `script` and 
 | `Circular Loop Execution ...` | Stages reference each other in a cycle. |
 | `Template stage 'T' cannot be executed directly` | Templates can only be used through `template` or `iterated`. |
 
+Each YAML file is parsed once per build and cached. Files generated during the build are read on first use, but do not modify a file after it has been read: the change is not picked up.
+
 ## Requirements
 
 | Item | Version |

@@ -125,6 +125,26 @@ class StagefyDslTest {
     }
 
     @Test
+    void yamlIsParsedOncePerRun() throws Exception {
+        String yaml = "lib:\n  steps:\n    - sh: \"echo marker-old\"\n"
+                + "build:\n  steps:\n    - sh: \"sed -i s/marker-old/marker-new/ Jenkins.yml\"\n"
+                + "    - use: lib from Jenkins.yml\n";
+        WorkflowRun run = run(yaml, "build");
+        j.assertBuildStatusSuccess(run);
+        assertFalse(JenkinsRule.getLog(run).contains("\nmarker-new"), "edited file must not be re-read");
+        assertLog(run, "marker-old");
+    }
+
+    @Test
+    void yamlGeneratedDuringRunIsReadOnFirstUse() throws Exception {
+        String yaml = "build:\n  steps:\n    - sh: \"echo 'gen:\\\\n  steps:\\\\n    - sh: echo gen-ran' > gen.yml\"\n"
+                + "    - use: gen from gen.yml\n";
+        WorkflowRun run = run(yaml, "build");
+        j.assertBuildStatusSuccess(run);
+        assertLog(run, "gen-ran");
+    }
+
+    @Test
     void missingStageFails() throws Exception {
         WorkflowRun run = run("build:\n  steps:\n    - sh: \"true\"\n", "nope");
         j.assertBuildStatus(Result.FAILURE, run);
