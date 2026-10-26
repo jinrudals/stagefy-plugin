@@ -218,6 +218,20 @@ class StagefyDslTest {
     }
 
     @Test
+    void stepStyleCallWorksInDeclarativePipeline() throws Exception {
+        WorkflowJob job = j.createProject(WorkflowJob.class);
+        job.setDefinition(new CpsFlowDefinition(
+                "pipeline {\n  agent any\n  stages {\n    stage('Setup') {\n      steps {\n"
+                        + "        writeFile file: 'Jenkins.yml', text: \'\'\'build:\n  steps:\n    - sh: \"echo declarative-ok\"\n\'\'\'\n"
+                        + "        stagefy file: 'Jenkins.yml', stage: 'build'\n"
+                        + "      }\n    }\n  }\n}",
+                true));
+        WorkflowRun run = job.scheduleBuild2(0).get();
+        j.assertBuildStatusSuccess(run);
+        assertLog(run, "declarative-ok");
+    }
+
+    @Test
     void batPowershellAndPwshAreKnownDirectives() throws Exception {
         for (String key : new String[] {"bat", "powershell", "pwsh"}) {
             WorkflowRun run = run("build:\n  steps:\n    - " + key + ": \"echo x\"\n", "build");
