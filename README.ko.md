@@ -80,7 +80,7 @@ build:
     - sh: "make test"
 ```
 
-`stagefy.run(file, stage)`는 워크스페이스의 YAML 파일을 읽어 지정한 스테이지를 `stage(...)` 블록으로 감싸 실행한다.
+`stagefy.run(file, stage)`는 워크스페이스의 YAML 파일을 읽어 지정한 스테이지를 `stage(...)` 블록으로 감싸 실행한다. 선언형 파이프라인에서는 `script {}` 블록 없이 `steps {}`에서 `stagefy file: 'Jenkins.yml', stage: 'build'`로 바로 호출할 수도 있다.
 
 ## YAML reference
 
@@ -100,6 +100,7 @@ build:
 | 스텝 | 설명 |
 |------|-------------|
 | `sh: "cmd"` | 셸 명령 실행. `${env.VAR}`는 빌드 환경에서 치환되며, 일반 이름은 셸 변수 참조(`${VAR}`)로 전달되므로 값이 셸 코드로 해석되지 않는다. |
+| `bat: "cmd"` / `powershell: "cmd"` / `pwsh: "cmd"` | `bat` / `powershell` / `pwsh` 스텝으로 명령 실행. `${env.VAR}`는 `%VAR%`(bat) 또는 `$env:VAR`(PowerShell)로 전달된다. |
 | `script: path` | Groovy 파일을 로드하여 `main()` 호출 |
 | `evaluate: expr` | Groovy 표현식 평가 |
 | `setEnvFromFile: file` | YAML 파일의 `env:` 맵을 빌드 환경으로 읽어 들임 |
@@ -148,7 +149,7 @@ release:
 |---------|-------|
 | `Stage 'X' not found in 'file'` | 스테이지 이름이 YAML 파일의 최상위 키가 아니거나, 파일이 워크스페이스에 없다 (먼저 checkout). |
 | `Stage 'X' has no 'stages', 'parallels', or 'steps' key` | 스테이지에 세 가지 본문 키가 하나도 없다. |
-| `Unknown step directive 'x' in stage 'X'` | 스텝이 `sh`, `script`, `setEnvFromFile`, `evaluate`, `use`, `template`, `iterated` 이외의 키를 사용했다. |
+| `Unknown step directive 'x' in stage 'X'` | 스텝이 `sh`, `bat`, `powershell`, `pwsh`, `script`, `setEnvFromFile`, `evaluate`, `use`, `template`, `iterated` 이외의 키를 사용했다. |
 | `Template 'T' requires argument 'a' ...` | `template` 스텝이나 `iterated` 항목이 선언된 인자를 모두 제공하지 않았다. |
 | `Circular Loop Execution ...` | 스테이지가 서로를 순환 참조한다. |
 | `Template stage 'T' cannot be executed directly` | 템플릿은 `template` 또는 `iterated`를 통해서만 사용할 수 있다. |
@@ -159,7 +160,6 @@ release:
 
 | 항목 | 버전 |
 |------|------|
-| Jenkins | 2.541.1+ |
 | Java | 17+ |
 | Maven | 3.9+ |
 | 필수 플러그인 | `workflow-cps`, `workflow-step-api`, `pipeline-stage-step`, `pipeline-utility-steps` |

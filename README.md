@@ -36,7 +36,7 @@ build:
     - sh: "make test"
 ```
 
-`stagefy.run(file, stage)` reads the YAML file from the workspace and runs the named stage inside a `stage(...)` block.
+`stagefy.run(file, stage)` reads the YAML file from the workspace and runs the named stage inside a `stage(...)` block. In declarative pipelines the equivalent `stagefy file: 'Jenkins.yml', stage: 'build'` works directly in `steps {}` without a `script {}` block.
 
 ## YAML reference
 
@@ -56,6 +56,7 @@ A stage is a top-level key in the YAML file. Its kind is decided by one of these
 | Step | Description |
 |------|-------------|
 | `sh: "cmd"` | Run a shell command. `${env.VAR}` is substituted from the build environment; plain names are passed as shell variable references (`${VAR}`), so values are never interpreted as shell code. |
+| `bat: "cmd"` / `powershell: "cmd"` / `pwsh: "cmd"` | Run a command with the `bat` / `powershell` / `pwsh` step. `${env.VAR}` becomes `%VAR%` (bat) or `$env:VAR` (PowerShell). |
 | `script: path` | Load a Groovy file and call its `main()` |
 | `evaluate: expr` | Evaluate a Groovy expression |
 | `setEnvFromFile: file` | Read the `env:` map of a YAML file into the build environment |
@@ -127,7 +128,7 @@ The schema checks structure only; Groovy in `when`, `evaluate` and `script` and 
 |---------|-------|
 | `Stage 'X' not found in 'file'` | The stage name is not a top-level key of the YAML file, or the file is not in the workspace (checkout first). |
 | `Stage 'X' has no 'stages', 'parallels', or 'steps' key` | The stage defines none of the three body keys. |
-| `Unknown step directive 'x' in stage 'X'` | A step uses a key other than `sh`, `script`, `setEnvFromFile`, `evaluate`, `use`, `template`, `iterated`. |
+| `Unknown step directive 'x' in stage 'X'` | A step uses a key other than `sh`, `bat`, `powershell`, `pwsh`, `script`, `setEnvFromFile`, `evaluate`, `use`, `template`, `iterated`. |
 | `Template 'T' requires argument 'a' ...` | A `template` step or `iterated` item does not supply every declared argument. |
 | `Circular Loop Execution ...` | Stages reference each other in a cycle. |
 | `Template stage 'T' cannot be executed directly` | Templates can only be used through `template` or `iterated`. |
@@ -138,8 +139,6 @@ Each YAML file is parsed once per build and cached. Files generated during the b
 
 | Item | Version |
 |------|---------|
-| Jenkins | 2.541.1+ |
-| Java | 17+ |
 | Plugins | `workflow-cps`, `workflow-step-api`, `pipeline-stage-step`, `pipeline-utility-steps` |
 
 ## Building

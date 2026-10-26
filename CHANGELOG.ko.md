@@ -15,9 +15,13 @@
 - 템플릿 인자(`{arg}`)가 Jenkinsfile의 `${...}`처럼 `sh` 스텝에 그대로 삽입된다는 점을 문서화했다.
 
 ### Added
+- `bat`, `powershell`, `pwsh` 스텝 지시어를 추가했다. `${env.VAR}`는 `%VAR%` / `$env:VAR`로 전달된다.
+- `script {}` 없이 선언형 `steps {}`에서 쓸 수 있는 `stagefy file: ..., stage: ...` 호출을 추가했다.
 - 스테이지 YAML용 JSON Schema(`schema/stagefy.schema.json`)와 README의 *Editor validation* 섹션을 추가했다.
 
 ### Fixed
+- 스테이지 진입/종료가 더 이상 Jenkins 시스템 로그에 기록되지 않고 빌드 콘솔에만 출력된다.
+- `workflow-basic-steps`, `workflow-durable-task-step`을 compile 스코프 의존성으로 변경했다(`sh`, `node` 스텝을 직접 사용).
 - `from`이 포함된 스테이지 이름(예: `deploy_from_s3`)이 더 이상 `name from file` 참조로 분리되지 않는다.
 - `error()`가 항상 예외를 던지므로, 검증기가 null 데이터로 계속 진행할 수 없다.
 

@@ -18,6 +18,18 @@ class DslJenkinsContext implements Serializable {
         script.sh(cmd)
     }
 
+    def bat(String cmd) {
+        script.bat(cmd)
+    }
+
+    def powershell(String cmd) {
+        script.powershell(cmd)
+    }
+
+    def pwsh(String cmd) {
+        script.pwsh(cmd)
+    }
+
     def stage(String name, Closure body) {
         script.stage(name, body)
     }
@@ -50,12 +62,10 @@ class DslJenkinsContext implements Serializable {
         return script.evaluate(value)
     }
 
-    /** Logs at SEVERE and fails the build; never returns (always throws AbortException). */
+    /** Logs at SEVERE and fails the build; never returns (the error step always throws AbortException). */
     def error(String msg) {
         LOGGER.log(Level.SEVERE, msg)
         script.error(msg)
-        // callers rely on error() never returning (validators dereference values right after it)
-        throw new hudson.AbortException(msg)
     }
 
     def getEnv(String name) {
@@ -72,9 +82,8 @@ class DslJenkinsContext implements Serializable {
     }
 
     def debug(String msg) { LOGGER.log(Level.FINE, msg) }
-    /** Logs at INFO and also prints to the build console. */
+    /** Prints to the build console only (no system log entry). */
     def info(String msg) {
-        LOGGER.log(Level.INFO, msg)
         script.println(msg)
     }
     def warn(String msg) { LOGGER.log(Level.WARNING, msg) }

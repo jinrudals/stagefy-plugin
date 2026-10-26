@@ -143,6 +143,21 @@
           "additionalProperties": false
         },
         {
+          "type": "object", "required": ["bat"],
+          "properties": { "bat": { "type": "string" } },
+          "additionalProperties": false
+        },
+        {
+          "type": "object", "required": ["powershell"],
+          "properties": { "powershell": { "type": "string" } },
+          "additionalProperties": false
+        },
+        {
+          "type": "object", "required": ["pwsh"],
+          "properties": { "pwsh": { "type": "string" } },
+          "additionalProperties": false
+        },
+        {
           "type": "object", "required": ["script"],
           "properties": { "script": { "description": "Groovy file whose main() is called.", "type": "string" } },
           "additionalProperties": false
