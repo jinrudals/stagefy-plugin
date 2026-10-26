@@ -1,6 +1,6 @@
 package io.jenkins.plugins.stagefy.util
 
-/** Finds {@code ${env.NAME}} references in {@code sh} text and substitutes them. */
+/** Finds {@code ${env.NAME}} references in command text ({@code sh}, {@code bat}, {@code powershell}, {@code pwsh}) and substitutes them. */
 class EnvResolver implements Serializable {
     /** Returns a list of [full: matched text, key: env name] for each {@code ${env.NAME}} occurrence. */
     static List extractEnvKeys(String text) {
@@ -16,14 +16,25 @@ class EnvResolver implements Serializable {
     // Plain identifiers become shell variable references so values are never re-parsed
     // as shell code (Jenkins exports env.* to sh steps); other keys keep literal substitution.
     static String substitute(String text, List envEntries, Map envValues) {
+        return substitute(text, envEntries, envValues, "sh")
+    }
+
+    /** {@code kind} selects the variable-reference syntax: sh {@code ${X}}, bat {@code %X%}, powershell/pwsh {@code $env:X}. */
+    static String substitute(String text, List envEntries, Map envValues, String kind) {
         def result = text
         for (entry in envEntries) {
             def val = envValues.get(entry.key)
             if (val == null) continue
             String key = (String) entry.key
-            String replacement = (key ==~ /[a-zA-Z_][a-zA-Z0-9_]*/) ? "\${" + key + "}" : val.toString()
+            String replacement = (key ==~ /[a-zA-Z_][a-zA-Z0-9_]*/) ? reference(kind, key) : val.toString()
             result = result.replace(entry.full, replacement)
         }
         return result
+    }
+
+    private static String reference(String kind, String key) {
+        if (kind == "bat") return "%" + key + "%"
+        if (kind == "powershell" || kind == "pwsh") return "\$env:" + key
+        return "\${" + key + "}"
     }
 }

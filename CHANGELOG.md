@@ -15,9 +15,13 @@ Notable changes to this project. Versions are published through the CD workflow;
 - Documented that template arguments (`{arg}`) are inlined into `sh` steps, like `${...}` in a Jenkinsfile.
 
 ### Added
+- `bat`, `powershell` and `pwsh` step directives; `${env.VAR}` becomes `%VAR%` / `$env:VAR`.
+- Step-style call `stagefy file: ..., stage: ...`, usable in declarative `steps {}` without `script {}`.
 - JSON Schema for the stage YAML at `schema/stagefy.schema.json`, with an *Editor validation* section in the README.
 
 ### Fixed
+- Stage enter/exit no longer writes to the Jenkins system log; it only prints to the build console.
+- `workflow-basic-steps` and `workflow-durable-task-step` are now compile-scope dependencies (the `sh` and `node` steps are used directly).
 - Stage names containing `from` (e.g. `deploy_from_s3`) are no longer split as `name from file` references.
 - `error()` always throws, so validators cannot continue with null data.
 

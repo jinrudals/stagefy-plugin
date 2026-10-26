@@ -206,6 +206,26 @@ class StagefyDslTest {
     }
 
     @Test
+    void stepStyleCallWorksWithoutRunMethod() throws Exception {
+        WorkflowJob job = j.createProject(WorkflowJob.class);
+        job.setDefinition(new CpsFlowDefinition(
+                "node {\nwriteFile file: 'Jenkins.yml', text: \'\'\'build:\n  steps:\n    - sh: \"echo step-style-ok\"\n\'\'\'\n"
+                        + "stagefy file: 'Jenkins.yml', stage: 'build'\n}",
+                true));
+        WorkflowRun run = job.scheduleBuild2(0).get();
+        j.assertBuildStatusSuccess(run);
+        assertLog(run, "step-style-ok");
+    }
+
+    @Test
+    void batPowershellAndPwshAreKnownDirectives() throws Exception {
+        for (String key : new String[] {"bat", "powershell", "pwsh"}) {
+            WorkflowRun run = run("build:\n  steps:\n    - " + key + ": \"echo x\"\n", "build");
+            assertFalse(JenkinsRule.getLog(run).contains("Unknown step directive"), key);
+        }
+    }
+
+    @Test
     void stageEnterIsLoggedToConsole() throws Exception {
         WorkflowRun run = run("build:\n  steps:\n    - sh: \"true\"\n", "build");
         j.assertBuildStatusSuccess(run);

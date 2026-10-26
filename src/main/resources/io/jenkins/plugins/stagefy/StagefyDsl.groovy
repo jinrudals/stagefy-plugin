@@ -19,4 +19,12 @@ class StagefyDsl implements Serializable {
             stageObj.run()
         }
     }
+
+    /** Step-style entry point: {@code stagefy file: 'Jenkins.yml', stage: 'build'} (no {@code script} block needed). */
+    def call(Map args) {
+        if (!args.file || !args.stage) {
+            script.error("stagefy requires 'file' and 'stage'")
+        }
+        run(args.file as String, args.stage as String)
+    }
 }
